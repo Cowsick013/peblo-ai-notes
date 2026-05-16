@@ -25,38 +25,6 @@ A modern, AI-powered notes workspace built with Next.js 15, Supabase, and Google
 
 ---
 
-## Getting Started
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/YOUR_USERNAME/peblo-ai-notes.git
-cd peblo-ai-notes
-```
-
-### 2. Install dependencies
-
-```bash
-npm install
-```
-
-### 3. Set up environment variables
-
-Create a `.env.local` file in the root:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
-GEMINI_API_KEY=your_gemini_api_key
-```
-
-### 4. Run the development server
-
-```bash
-npm run dev
-```
-
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
@@ -77,7 +45,7 @@ src/
 └── types/            # TypeScript types
 ```
 
--
+Contributers are both the accounts of the primary developer who will share this link
 
 
 ---
