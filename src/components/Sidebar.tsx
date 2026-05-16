@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -11,9 +12,11 @@ import {
   Archive,
   Share2,
   LogOut,
+  Menu,
+  X,
 } from 'lucide-react'
-import { Button } from '@/components/button'
-import { Separator } from '@/components/separator'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -25,6 +28,7 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
+  const [open, setOpen] = useState(false)
 
   async function handleLogout() {
     const supabase = createClient()
@@ -34,14 +38,23 @@ export default function Sidebar() {
     router.refresh()
   }
 
-  return (
-    <aside className="w-60 border-r flex flex-col h-full shrink-0 bg-background">
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="flex items-center gap-2 px-4 py-5">
-        <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center">
-          <span className="text-primary-foreground text-xs font-bold">P</span>
+      <div className="flex items-center justify-between px-4 py-5">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center">
+            <span className="text-primary-foreground text-xs font-bold">P</span>
+          </div>
+          <span className="font-semibold text-base">Peblo</span>
         </div>
-        <span className="font-semibold text-base">Peblo</span>
+        {/* Close button — mobile only */}
+        <button
+          className="md:hidden text-muted-foreground hover:text-foreground"
+          onClick={() => setOpen(false)}
+        >
+          <X size={18} />
+        </button>
       </div>
 
       <Separator />
@@ -52,12 +65,13 @@ export default function Sidebar() {
           <Link
             key={href}
             href={href}
-           className={cn(
-  'flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors',
-  (pathname === href || (href !== '/dashboard' && pathname.startsWith(href)))
-    ? 'bg-secondary text-foreground font-medium'
-    : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-)}
+            onClick={() => setOpen(false)}
+            className={cn(
+              'flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors',
+              (pathname === href || (href !== '/dashboard' && pathname.startsWith(href)))
+                ? 'bg-secondary text-foreground font-medium'
+                : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+            )}
           >
             <Icon size={16} />
             {label}
@@ -78,6 +92,47 @@ export default function Sidebar() {
           Sign out
         </Button>
       </div>
-    </aside>
+    </div>
+  )
+
+  return (
+    <>
+      {/* Mobile top bar */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center gap-3 px-4 py-3 bg-background border-b">
+        <button
+          onClick={() => setOpen(true)}
+          className="text-muted-foreground hover:text-foreground"
+        >
+          <Menu size={20} />
+        </button>
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
+            <span className="text-primary-foreground text-xs font-bold">P</span>
+          </div>
+          <span className="font-semibold text-sm">Peblo</span>
+        </div>
+      </div>
+
+      {/* Mobile overlay */}
+      {open && (
+        <div
+          className="md:hidden fixed inset-0 z-40 bg-black/40"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      {/* Mobile drawer */}
+      <div className={cn(
+        'md:hidden fixed top-0 left-0 z-50 h-full w-64 bg-background border-r transition-transform duration-200',
+        open ? 'translate-x-0' : '-translate-x-full'
+      )}>
+        <SidebarContent />
+      </div>
+
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex w-60 border-r flex-col h-full shrink-0 bg-background">
+        <SidebarContent />
+      </aside>
+    </>
   )
 }

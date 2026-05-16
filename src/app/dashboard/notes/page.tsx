@@ -5,20 +5,20 @@ import { useNotes } from '@/hooks/useNotes'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
-import { Plus, Trash2, Archive, Search, FileText, Sparkles } from 'lucide-react'
+import { Plus, Trash2, Archive, Search, FileText, Sparkles, Share2, ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
 import AIPanel from '@/components/AIPanel'
-import { Share2, Copy, Link } from 'lucide-react'
 
 export default function NotesPage() {
   const [search, setSearch] = useState('')
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [showAI, setShowAI] = useState(false)
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [sharing, setSharing] = useState(false)
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const { notes, loading, activeNote, setActiveNote, createNote, updateNote, deleteNote, archiveNote, fetchNotes } = useNotes()
+
   useEffect(() => {
     if (activeNote) {
       setTitle(activeNote.title)
@@ -46,45 +46,44 @@ export default function NotesPage() {
     }, 1500)
   }
 
+  async function handleShare() {
+    if (!activeNote) return
+    setSharing(true)
+    if (activeNote.share_id) {
+      const url = `${window.location.origin}/share/${activeNote.share_id}`
+      navigator.clipboard.writeText(url)
+      toast.success('Share link copied!')
+      setSharing(false)
+      return
+    }
+    const res = await fetch(`/api/notes/${activeNote.id}/share`, { method: 'POST' })
+    const data = await res.json()
+    if (data.share_id) {
+      const url = `${window.location.origin}/share/${data.share_id}`
+      navigator.clipboard.writeText(url)
+      await fetchNotes()
+      toast.success('Share link copied to clipboard!')
+    } else {
+      toast.error('Failed to generate share link')
+    }
+    setSharing(false)
+  }
+
   const filtered = notes.filter(n =>
     n.title.toLowerCase().includes(search.toLowerCase()) ||
     n.content.toLowerCase().includes(search.toLowerCase())
   )
 
-  async function handleShare() {
-  if (!activeNote) return
-  setSharing(true)
-
-  if (activeNote.share_id) {
-    // Copy existing link
-    const url = `${window.location.origin}/share/${activeNote.share_id}`
-    navigator.clipboard.writeText(url)
-    toast.success('Share link copied!')
-    setSharing(false)
-    return
-  }
-
-  // Generate new share link
-  const res = await fetch(`/api/notes/${activeNote.id}/share`, {
-    method: 'POST'
-  })
-  const data = await res.json()
-
-  if (data.share_id) {
-    const url = `${window.location.origin}/share/${data.share_id}`
-    navigator.clipboard.writeText(url)
-    await fetchNotes()
-    toast.success('Share link copied to clipboard!')
-  } else {
-    toast.error('Failed to generate share link')
-  }
-  setSharing(false)
-}
   return (
-    <div className="flex h-full -m-6 overflow-hidden">
+    <div className="flex h-full -m-4 md:-m-6 overflow-hidden">
 
-      {/* Notes list panel */}
-      <div className="w-72 border-r flex flex-col shrink-0">
+      {/* Notes list panel — full width on mobile, fixed width on desktop */}
+      {/* Hidden on mobile when a note is active */}
+      <div className={cn(
+        'border-r flex flex-col shrink-0 bg-background',
+        'w-full md:w-72',
+        activeNote ? 'hidden md:flex' : 'flex'
+      )}>
         <div className="p-3 border-b flex items-center gap-2">
           <div className="relative flex-1">
             <Search size={14} className="absolute left-2.5 top-2.5 text-muted-foreground" />
@@ -141,8 +140,11 @@ export default function NotesPage() {
         </div>
       </div>
 
-      {/* Editor + AI panel wrapper */}
-      <div className="flex-1 flex overflow-hidden">
+      {/* Editor + AI panel — full width on mobile when note is active */}
+      <div className={cn(
+        'flex-1 flex overflow-hidden',
+        !activeNote && 'hidden md:flex'
+      )}>
 
         {/* Editor */}
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -157,54 +159,65 @@ export default function NotesPage() {
           ) : (
             <>
               {/* Toolbar */}
-              <div className="flex items-center justify-between px-6 py-3 border-b shrink-0">
-                <p className="text-xs text-muted-foreground">
-                  Last edited {formatDistanceToNow(new Date(activeNote.updated_at), { addSuffix: true })}
-                </p>
-                <div className="flex gap-2">
+              <div className="flex items-center justify-between px-3 md:px-6 py-3 border-b shrink-0">
+                <div className="flex items-center gap-2">
+                  {/* Back button — mobile only */}
+                  <button
+                    className="md:hidden text-muted-foreground hover:text-foreground p-1"
+                    onClick={() => setActiveNote(null)}
+                  >
+                    <ArrowLeft size={16} />
+                  </button>
+                  <p className="text-xs text-muted-foreground">
+                    {formatDistanceToNow(new Date(activeNote.updated_at), { addSuffix: true })}
+                  </p>
+                </div>
+                <div className="flex gap-1">
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-7 text-xs gap-1.5"
+                    className="h-7 px-2 text-xs gap-1"
                     onClick={() => archiveNote(activeNote.id)}
                   >
-                    <Archive size={13} /> Archive
+                    <Archive size={13} />
+                    <span className="hidden md:inline">Archive</span>
                   </Button>
                   <Button
                     size="sm"
                     variant="ghost"
-                    className={cn('h-7 text-xs gap-1.5', showAI && 'bg-secondary')}
+                    className={cn('h-7 px-2 text-xs gap-1', showAI && 'bg-secondary')}
                     onClick={() => setShowAI(prev => !prev)}
                   >
-                    <Sparkles size={13} /> AI
+                    <Sparkles size={13} />
+                    <span className="hidden md:inline">AI</span>
                   </Button>
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-7 text-xs gap-1.5 text-destructive hover:text-destructive"
-                    onClick={() => deleteNote(activeNote.id)}
+                    className={cn('h-7 px-2 text-xs gap-1', activeNote?.share_id && 'text-blue-500')}
+                    onClick={handleShare}
+                    disabled={sharing}
                   >
-                    <Trash2 size={13} /> Delete
+                    <Share2 size={13} />
+                    <span className="hidden md:inline">
+                      {activeNote?.share_id ? 'Copy link' : 'Share'}
+                    </span>
                   </Button>
                   <Button
-  size="sm"
-  variant="ghost"
-  className={cn(
-    'h-7 text-xs gap-1.5',
-    activeNote?.share_id && 'text-blue-500'
-  )}
-  onClick={handleShare}
-  disabled={sharing}
->
-  <Share2 size={13} />
-  {activeNote?.share_id ? 'Copy link' : 'Share'}
-</Button>
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 px-2 text-xs gap-1 text-destructive hover:text-destructive"
+                    onClick={() => deleteNote(activeNote.id)}
+                  >
+                    <Trash2 size={13} />
+                    <span className="hidden md:inline">Delete</span>
+                  </Button>
                 </div>
               </div>
 
               {/* Title */}
               <input
-                className="px-6 pt-6 pb-2 text-2xl font-semibold bg-transparent border-none outline-none placeholder:text-muted-foreground w-full shrink-0"
+                className="px-4 md:px-6 pt-6 pb-2 text-xl md:text-2xl font-semibold bg-transparent border-none outline-none placeholder:text-muted-foreground w-full shrink-0"
                 placeholder="Untitled Note"
                 value={title}
                 onChange={e => handleTitleChange(e.target.value)}
@@ -212,7 +225,7 @@ export default function NotesPage() {
 
               {/* Content */}
               <textarea
-                className="flex-1 px-6 py-2 bg-transparent border-none outline-none resize-none text-sm leading-relaxed placeholder:text-muted-foreground"
+                className="flex-1 px-4 md:px-6 py-2 bg-transparent border-none outline-none resize-none text-sm leading-relaxed placeholder:text-muted-foreground"
                 placeholder="Start writing..."
                 value={content}
                 onChange={e => handleContentChange(e.target.value)}
@@ -221,7 +234,7 @@ export default function NotesPage() {
           )}
         </div>
 
-        {/* AI Panel — slides in beside editor */}
+        {/* AI Panel */}
         {activeNote && showAI && (
           <AIPanel
             note={activeNote}
@@ -229,7 +242,6 @@ export default function NotesPage() {
             onClose={() => setShowAI(false)}
           />
         )}
-
       </div>
     </div>
   )
