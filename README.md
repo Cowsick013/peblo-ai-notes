@@ -1,4 +1,4 @@
-# Peblo — AI Notes Workspace
+# AI Notes Workspace
 
 A modern, AI-powered notes workspace built with Next.js 15, Supabase, and Google Gemini. Designed to feel like a lightweight Notion with an AI assistant built in.
 

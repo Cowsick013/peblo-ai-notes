@@ -31,9 +31,9 @@ export default async function SharedNotePage({ params }: Props) {
       <div className="border-b">
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center gap-2">
           <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
-            <span className="text-primary-foreground text-xs font-bold">P</span>
+            <span className="text-primary-foreground text-xs font-bold">N</span>
           </div>
-          <span className="font-semibold text-sm">Peblo</span>
+          <span className="font-semibold text-sm">AI Notes</span>
           <span className="text-muted-foreground text-sm ml-2">— Shared Note</span>
         </div>
       </div>

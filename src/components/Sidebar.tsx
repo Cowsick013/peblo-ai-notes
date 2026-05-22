@@ -44,9 +44,9 @@ export default function Sidebar() {
       <div className="flex items-center justify-between px-4 py-5">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center">
-            <span className="text-primary-foreground text-xs font-bold">P</span>
+            <span className="text-primary-foreground text-xs font-bold">N</span>
           </div>
-          <span className="font-semibold text-base">Peblo</span>
+          <span className="font-semibold text-base">AI Notes</span>
         </div>
         {/* Close button — mobile only */}
         <button
@@ -107,9 +107,9 @@ export default function Sidebar() {
         </button>
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
-            <span className="text-primary-foreground text-xs font-bold">P</span>
+            <span className="text-primary-foreground text-xs font-bold">N</span>
           </div>
-          <span className="font-semibold text-sm">Peblo</span>
+          <span className="font-semibold text-sm">AI Notes</span>
         </div>
       </div>
 

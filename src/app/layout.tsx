@@ -10,7 +10,7 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: "Peblo — AI Notes Workspace",
+  title: "AI Notes Workspace",
   description: "AI-powered notes workspace built with Next.js, Supabase, and Gemini",
 };
 

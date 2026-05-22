@@ -36,7 +36,7 @@ export default function SignupPage() {
       return
     }
 
-    toast.success('Account created! Welcome to Peblo 🎉')
+    toast.success('Account created! Welcome to AI Notes 🎉')
     router.push('/dashboard')
     router.refresh()
   }
@@ -47,9 +47,9 @@ export default function SignupPage() {
         <CardHeader className="space-y-1">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground text-sm font-bold">P</span>
+              <span className="text-primary-foreground text-sm font-bold">N</span>
             </div>
-            <span className="font-semibold text-lg">Peblo</span>
+            <span className="font-semibold text-lg">AI Notes</span>
           </div>
           <CardTitle className="text-2xl">Create an account</CardTitle>
           <CardDescription>Start building your AI-powered notes workspace</CardDescription>
